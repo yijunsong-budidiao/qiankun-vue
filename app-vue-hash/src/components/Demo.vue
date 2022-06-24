@@ -1,5 +1,5 @@
 <template>
-  <div>demo111111111111333555</div>
+  <div>app-vue-hash 中的组件</div>
 </template>
 
 <script>

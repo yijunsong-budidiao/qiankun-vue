@@ -1,4 +1,4 @@
-# 项目说明 qiankun-vue-demo
+# 项目说明 qiankun-vue
 
 用`qiankun`来实现`vue`技术栈的前端微服务
 
@@ -6,26 +6,79 @@
 
 `qiankun`的开发和打包和正常模式一模一样，它使用一个全局变量`__POWERED_BY_QIANKUN__`来区分微前端模式和正常模式，不需要额外的配置和代码。
 
-具体的原理分析和介绍可以看：[qiankun 微前端方案实践及总结](https://juejin.im/post/6844904185910018062) 和 [qiankun 微前端实践总结（二）](https://juejin.im/post/6856569463950639117)
-
 ## 运行和打包
 
 在根目录下：
 
 先安装依赖： `npm install`，再执行`npm run install-all`为所有项目安装依赖，最后执行`npm run start-all`即可启动所有的项目。
 
-`npm run build-all`可以打包所有`vue`项目，`jQuery`项目不需要打包。
+`npm run build-all`可以打包所有`vue`项目。
 
+## 项目主要配置介绍
 
-## 分支介绍
+```js
+// main/main.js 注册所有连接的子项目，有几个就可以配置几个，只要端口不重复就行
+registerMicroApps([
+  {
+    name: "app-vue-hash",
+    entry: "http://localhost:1111",
+    container: "#appContainer",
+    activeRule: "/app-vue-hash",
+    props: { data: { store, router, textMsg: "测试消息" } },
+  },
+  {
+    name: "app-vue-history",
+    entry: "http://localhost:2222",
+    container: "#appContainer",
+    activeRule: "/app-vue-history",
+    props: { data: store },
+  },
+]);
+```
 
-- `master` 分支： `qiankun` 的常规基础用法
-- `feature/hash-router` 分支 ：主子项目都是 `hash` 模式
-- `feature/keep-alive` 分支 ：使用 `loadMicroApp` 来实现 `keep-alive` 的 `tab` 效果
-- `feature/share-component` 分支 ：项目间共享组件的例子
-- `feature/routing-page` 分支 ：在主项目的某个路由页面加载子应用
-- `feature/share-dependencies` 分支 ：子项目复用主项目的公共依赖（vue，vuex，vue-router），以及主子项目间 i18n 的处理
-- `feature/vite-child` 分支 ：子项目是 vite 构建的 vue3 项目
-- `feature/use-main-app-component` 分支 ：子项目复用主项目的依赖
-- `feature/abstract-route` 分支 ：主项目同时展示两个子应用的不同页面，子项目使用 abstract 路由
-- `develop` 分支 ：修改源码来实现 `keep-alive`，以及公共依赖的复用的例子
+```js
+// app-vue-hash/main.js 子项目渲染配置
+function render({ data = {}, container } = {}) {
+  router = new VueRouter({
+    routes,
+  });
+  instance = new Vue({
+    router,
+    store,
+    data() {
+      return {
+        parentRouter: data.router,
+        parentVuex: data.store,
+        textMsg: data.textMsg,
+      };
+    },
+    render: (h) => h(App),
+  }).$mount(container ? container.querySelector("#appVueHash") : "#appVueHash");
+}
+
+if (!window.__POWERED_BY_QIANKUN__) {
+  render();
+}
+//测试全局变量污染
+console.log("window.a", window.a);
+
+export async function bootstrap() {
+  console.log("vue app bootstraped");
+}
+
+export async function mount(props) {
+  console.log("props from main framework", props.data);
+  render(props);
+}
+
+export async function unmount() {
+  instance.$destroy();
+  instance.$el.innerHTML = "";
+  instance = null;
+  router = null;
+}
+```
+
+## 总结
+qiankun微前端的实现方式就是主项目和子项目分别都能自主启动，像案例里面的那样，main启动端口8080，两个子项目分别为1111、2222，都是能独立启动的，保证了开发互相独立，达到低耦合的效果。然后把子项目当成路由地址来看就行了。说再多都没有，自己领悟最重要。
+>**项目并不复杂，多看看主项目和子项目的mian.js和根组件App.vue,基本就明白了**

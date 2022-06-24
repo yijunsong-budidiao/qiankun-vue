@@ -5,6 +5,7 @@
   </div>
 </template>
 <script>
+// 调用app-vue-hash 中的组件
 import Demo from "../../../app-vue-hash/src/components/Demo.vue";
 export default {
   components: {
