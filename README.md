@@ -1,4 +1,4 @@
-# 项目说明 qiankun-vue
+🛰️🛰️# 项目说明 qiankun-vue☄️☄️
 
 用`qiankun`来实现`vue`技术栈的前端微服务
 
@@ -18,6 +18,7 @@
 
 ```js
 // main/main.js 注册所有连接的子项目，有几个就可以配置几个，只要端口不重复就行
+
 registerMicroApps([
   {
     name: "app-vue-hash",
@@ -38,6 +39,7 @@ registerMicroApps([
 
 ```js
 // app-vue-hash/main.js 子项目渲染配置
+
 function render({ data = {}, container } = {}) {
   router = new VueRouter({
     routes,
@@ -81,4 +83,4 @@ export async function unmount() {
 
 ## 总结
 qiankun微前端的实现方式就是主项目和子项目分别都能自主启动，像案例里面的那样，main启动端口8080，两个子项目分别为1111、2222，都是能独立启动的，保证了开发互相独立，达到低耦合的效果。然后把子项目当成路由地址来看就行了。说再多都没有，自己领悟最重要。
->**项目并不复杂，多看看主项目和子项目的mian.js和根组件App.vue,基本就明白了**
+>**项目并不复杂，多看看主项目和子项目的mian.js和根组件App.vue,理解一下路由,基本就明白了**
